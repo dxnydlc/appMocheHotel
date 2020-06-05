@@ -25,6 +25,10 @@ License: You must have a valid license purchased only from themeforest(the above
 
         <!-- BEGIN: CSS Assets-->
         <link rel="stylesheet" href="{{ asset('dist/css/app.css') }}" />
+        <!-- waitMe-31.10.17 -->
+        <link rel="stylesheet" href="{{ asset('plugins/waitMe-31.10.17/waitMe.min.css') }}" />
+        <!-- SweetAlert -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-borderless/borderless.css" />
         <!-- END: CSS Assets-->
 
         <script> 
@@ -64,12 +68,20 @@ License: You must have a valid license purchased only from themeforest(the above
             <!-- END: Content -->
         </div>
         <!-- BEGIN: JS Assets-->
+
+        
+
         <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key={{ env("MAPS_KEY") }}&libraries=places"></script>
         <script src="{{ asset('dist/js/app.js') }}"></script>
+        <!-- waitMe-31.10.17 -->
+        
+        <!-- SweetAlert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9/dist/sweetalert2.min.js"></script>
         <!-- END: JS Assets-->
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+        <script src="{{ asset('plugins/waitMe-31.10.17/waitMe.min.js') }}"></script>
 
         @section('scripts')@show
 

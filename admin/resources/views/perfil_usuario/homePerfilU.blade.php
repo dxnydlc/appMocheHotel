@@ -42,29 +42,35 @@
 		</div>
 		<div class="p-5">
 			<form method="POST" action="1" autocomplete="off" id="frmDocumento" >
+				<input type="hidden" name="avatar_40" id="avatar_40" value="{{ Auth::user()->avatar_40 }}" />
 				@csrf
 				<div class="preview">
 					<div class=" grid grid-cols-12 gap-2 ">
 						<div class=" text-center col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-6 ">
 							<!-- COL01 -->
-							<img class=" m-0 m-auto rounded-lg md:w-56 " src="{{ asset('assets/img/user-demo.jpg') }}" alt="">
+							<img id="avatar" class=" m-0 m-auto rounded-lg md:w-56 " src="@if (Auth::user()->avatar == "") {{ asset('assets/img/user-demo.jpg') }} @else {{ Auth::user()->avatar }} @endif" alt="" />
 							<div class=" w-40 mx-auto cursor-pointer relative mt-5 " >
-								<a id="demo" href="#" data-remodal-target="mdlImagen" class="button w-full bg-theme-1 text-white">Cambiar foto</a>
+								<a id="btnChngFoto" href="#" data-remodal-target="mdlImagen" class="button w-full bg-theme-1 text-white">Cambiar foto</a>
 							</div>
 
 						</div>
 						<div class=" col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-6 ">
 							<!-- COL01 -->
-							<div class=" " >
+							<div class=" mt-3 " >
 								<label for="">Nombre</label>
-								<input name="name" id="name" type="text" class="input w-full border mt-2" placeholder="Input text" maxlength="150" value="{{ Auth::user()->name }}" />
+								<input name="name" id="name" type="text" class=" mt-2 input w-full border mt-2" placeholder="Input text" maxlength="150" value="{{ Auth::user()->name }}" />
 							</div>
 							<!-- FORM-GROUP -->
-							<div class=" " >
+							<div class=" mt-3 " >
 								<label for="">Correo</label>
-								<input name="email" id="email" type="text" class="input w-full border mt-2" placeholder="Input text" maxlength="150" value="{{ Auth::user()->email }}" />
+								<input name="email" id="email" type="text" class=" mt-2 input w-full border mt-2" placeholder="Input text" maxlength="150" value="{{ Auth::user()->email }}" />
 							</div>
 							<!-- FORM-GROUP -->
+				            <div class=" mt-3 xl:w-1/2 sm:w-1/1" >
+				              <label for="">Celuar</label>
+				              <input id="celular" name="celular" type="text" class=" mt-2 input w-full border mt-2" placeholder="" value="{{ Auth::user()->celular }}" />
+				            </div>
+				            <!-- FORM-GROUP -->
 						</div>
 					</div>
 							
@@ -90,7 +96,7 @@
 
 	<br>
 	<button data-remodal-action="cancel" class=" float-left remodal-cancel"   >Cancelar</button>
-	<button data-remodal-action="confirm" class=" float-right remodal-confirm" >Cargar</button>
+	<button id="btnCambiar" data-remodal-action="confirm" class=" float-right remodal-confirm" >Cambiar</button>
 </div>
 
 
@@ -108,14 +114,14 @@
 
 <script>
 	var uploadObj;
-
+	var $avatarUser = '{{ Auth::user()->avatar }}', $avatar_40 = '{{ Auth::user()->avatar_40 }}';
 
 (function($){
 	$(document).ready(function()
 		{
 			/* ------------------------------------------------------------- */
 			uploadObj = $("#showoldupload").uploadFile({
-				url             :  _URL_HOME +  'subir/archivo/post' ,
+				url             :  _URL_HOME +  'adjuntar/foto/perfil/usuario' ,
 				dragDrop        : true,
 				fileName        : "formData",
 				formData: {     '_token'  : $('meta[name="csrf-token"]').attr('content') , 'token' : _SessionToken } ,
@@ -159,11 +165,24 @@
 					console.log( files, data );
 					var $n = files.responses.length;
 					console.log( 'hay '+$n +' Archivos...');
-				    // $('#btnAplicadFilesPost').removeClass('disabled').removeAttr('disabled');
+					var $json = files.responses[$n-1];
+					if( $json.estado == "OK" ){
+						$avatarUser = $json.data.url_400;
+						$avatar_40  = $json.data.url_40;
+					    $('#btnCambiar').show();
+					}
 				}
 			});
 			/* ------------------------------------------------------------- */
+			$('#btnChngFoto').click(function(event) {
+				uploadObj.reset();
+				$('#btnCambiar').hide();
+			});
 			/* ------------------------------------------------------------- */
+			$('#btnCambiar').click(function(event) {
+				event.preventDefault();
+				cambiarFoto();
+			});
 			/* ------------------------------------------------------------- */
 			/* ------------------------------------------------------------- */
 			/* ------------------------------------------------------------- */
@@ -174,6 +193,47 @@
 		});
 
 })(jQuery);
+
+/* ------------------------------------------------------------- */
+function cambiarFoto()
+{
+	//
+	var _data = { 
+		'_token'  : $('meta[name="csrf-token"]').attr('content') , 
+		'avatar' : $avatarUser, 'avatar_40' : $avatar_40
+	};
+	$('body').waitMe({
+		effect : 'win8',text : 'Espere...',
+		color:'#146436',fontSize:'20px',textPos : 'vertical',
+		onClose : function() {}
+	});
+	$.post( _URL_HOME + 'update/avatar/usuario', _data , function(data, textStatus, xhr) {
+		/*optional stuff to do after success */
+	}, 'json')
+	.fail(function() {
+		//
+	})
+	.done( function( json ) {
+		if( json.estado == 'OK' ){
+			$('#frmDocumento #avatar').attr('src', $avatarUser );
+		}
+	})
+	.always(function() {
+		$('body').waitMe('hide');
+	});
+}
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
+/* ------------------------------------------------------------- */
 
 </script>
 

@@ -35,3 +35,32 @@ $("#sticky").modal({
   <p>Second AJAX Example!</p>
 </div>
 
+<!-- ############################## -->
+<script>
+var _data = { 
+	'_token'  : $('meta[name="csrf-token"]').attr('content') , 
+	'idLista' : 0
+};
+$('body').waitMe({
+	effect : 'win8',text : 'Espere...',
+	bg : rgba(255,255,255,0.7),
+	color:'#146436',fontSize:'20px',textPos : 'vertical',
+	onClose : function() {}
+});
+$.post( _URL_HOME + 'ejec_extkdx_lista', _data , function(data, textStatus, xhr) {
+	/*optional stuff to do after success */
+}, 'json')
+.fail(function() {
+	$.alert({
+	    title: 'Error',
+	    content: 'Intente una vez más',
+	});
+})
+.done( function( json ) {
+	//
+})
+.always(function() {
+	$('body').waitMe('hide');
+});
+
+</script>

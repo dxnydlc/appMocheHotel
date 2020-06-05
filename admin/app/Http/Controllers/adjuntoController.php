@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\User;
 use App\archivosModel;
+use App\auditoriaModel;
 
 
 use DB;
@@ -19,6 +20,8 @@ use Auth;
 use Exception;
 use Storage;
 use Image;
+
+use Str;
 
 class adjuntoController extends Controller
 {
@@ -69,7 +72,7 @@ class adjuntoController extends Controller
         }
   
         # Se guarda en la carpeta STORAGE por no se archivo prioritario
-        $guardado_en        = 'ADJUNTOS';
+        $guardado_en        = 'ADJUNTO';
         if(! file_exists( $fullURL ) )
         {
             mkdir( $fullURL );
@@ -77,10 +80,10 @@ class adjuntoController extends Controller
         #
         if (in_array( $extension , $extensiones) ) {
             # se guarda en storage
-            $imagenOriginal = 'Archivo_Origin_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).$extension;
-            $archivoNombre  = 'Archivo_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).$extension;
-            $imagen400      = 'Archivo_400_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).$extension;
-            $imagen40       = 'Archivo_40_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).$extension;
+            $imagenOriginal = 'Archivo_Origin_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).'.'.$extension;
+            $archivoNombre  = 'Archivo_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).'.'.$extension;
+            $imagen400      = 'Archivo_400_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).'.'.$extension;
+            $imagen40       = 'Archivo_40_'.strtoupper(Str::random(15).'-'.Str::random(15).'-'.Str::random(15)).'.'.$extension;
             # #############################################
             $request->formData->move( $fullURL , $imagenOriginal );
             # #############################################
@@ -103,68 +106,64 @@ class adjuntoController extends Controller
                 $img->resize( 40 , 40 );
                 $img->orientate();
                 $img->save( $fullURL . '/' . $imagen40 );
-                # Borrando imagen original subida... DEBIDO A LA ALTGA CALIDAD Y EL POCO ESPACIO EN EL SERVIDOR.
-                # unlink( $fullURL . '/' . $imagenOriginal );
+                # Borrando imagen original subida... DEBIDO A LA ALTA CALIDAD Y EL POCO ESPACIO EN 
                 $sizeBytes = filesize( $fullURL . '/' . $imagenOriginal );
                 $dataInsert['url']              = URL_HOME . 'assets/adjunto/' . $imagenOriginal;
                 $dataInsert['url_400']          = URL_HOME . 'assets/adjunto/' . $imagen400;
                 $dataInsert['url_40']           = URL_HOME . 'assets/adjunto/' . $imagen40;
-                $dataInsert['nombre_fisico']    = $fullURL.'/'.$imagenOriginal;
+                $dataInsert['ruta_fisica']      = $fullURL.'/'.$imagenOriginal;
+                $dataInsert['nombre_fisico']    = $imagenOriginal;
+                
             }else{
                 $sizeBytes = filesize( $fullURL . '/' . $imagenOriginal );
                 $dataInsert['url']              = URL_HOME . 'assets/adjunto/' . $imagenOriginal;
                 $dataInsert['url_400']          = URL_HOME . 'assets/adjunto/' . $imagenOriginal;
                 $dataInsert['url_40']           = URL_HOME . 'assets/adjunto/' . $imagenOriginal;
-                $dataInsert['nombre_fisico']    = $fullURL.'/'.$imagenOriginal;
+                $dataInsert['ruta_fisica']      = $fullURL.'/'.$imagenOriginal;
+                $dataInsert['nombre_fisico']    = $imagenOriginal;
+                
             }
             #
             $Filesize = $this->formatSizeUnits( $sizeBytes );
 
-            $dataInsert['id_modulo']        = 0;
-            $dataInsert['modulo']           = 0;
-            $dataInsert['uu_id']            = strtoupper( str_random( 18 ).'-'.str_random( 28 ).'-'.str_random( 18 ) );
-            $dataInsert['formulario']       = 'ATENDER_REQ_DINERO';
+            $dataInsert['uu_id']            = strtoupper(Str::random(25).'-'.Str::random(25).'-'.Str::random(25));
+            $dataInsert['formulario']       = 'IMAGEN_PERFIL';
             $dataInsert['nombre_archivo']   = $request->formData->getClientOriginalName();
-            #$dataInsert['nombre_fisico']    = $archivoNombre;
-            $dataInsert['size']             = $Filesize;
+            # 
+            $dataInsert['peso']             = $Filesize;
             $dataInsert['extension']        = $extension;
-            $dataInsert['ruta_fisica']      = $fullURL.'/'.$imagenOriginal;
-            # $dataInsert['url']              = URL_HOME.$preFolder.'/'.$imagenOriginal;
-            # $dataInsert['url_400']          = URL_HOME.$preFolder.'/'.$imagen400;
-            # $dataInsert['url_40']           = URL_HOME.$preFolder.'/'.$imagen40;
+            # 
             $dataInsert['tipo_documento']   = $extension;
-            $dataInsert['publico']          = $request['publico'];
+            $dataInsert['tipo']   			= $extension;
 
             $dataInsert['token']            = $request['token'];
-            $dataInsert['correlativo']      = $request['IdReq'];
+
             $dataInsert['guardado_en']      = $guardado_en;
             $dataInsert['id_usuario']       = Auth::user()->id;
             $dataInsert['usuario']          = Auth::user()->name;
             #
-            $dataInsert['id_empresa']       = Auth::user()->id_empresa;
-            $dataInsert['empresa']          = Auth::user()->empresa;
-            #
-            $dataInsertada = adjuntoGoogleModel::create( $dataInsert );
+            $dataInsertada = archivosModel::create( $dataInsert );
+            $this->addLog(['act'=>'IMAGEN_PERFIL','g'=>'Foto de perfil','req'=>$request->all(),'id'=>0,'m'=>'FOTO_PERFIL']);
             if( $dataInsertada )
             {
                 $response['estado'] = 'OK';
                 $response['data'] = $dataInsertada;
-                $this->addLog(['act'=>'GUARDAR_REQ_DINERO','g'=>'Agregar archivo adjunto','req'=>$request->all(),'id'=>$request['IdReq']]);
+
                 if( $request['IdReq'] == 0 )
                 {
                     # buscamos por token
-                    $datilla = adjuntoGoogleModel::where([
+                    $datilla = archivosModel::where([
                         [ 'token' ,'=', $request['token'] ] , 
-                        [ 'formulario' ,'=', 'ARCHIVO_REQ_DINERO' ]
+                        [ 'formulario' ,'=', 'FOTO_PERFIL' ]
                     ])->get();
                 }else{
                     # Buscamos por ID de requerimiento de dinero
-                    $datilla = adjuntoGoogleModel::where([
+                    $datilla = archivosModel::where([
                         [ 'correlativo' ,'=', $request['IdReq'] ] , 
-                        [ 'formulario' ,'=', 'ARCHIVO_REQ_DINERO' ]
+                        [ 'formulario' ,'=', 'IMAGEN_PERFIL' ]
                     ])->get();
                 }
-                $response['detalle'] = $this->populateFilesRD( $datilla );
+                $response['detalle'] = $datilla;
             }
             $response['errores'] = '';
 
@@ -281,6 +280,39 @@ class adjuntoController extends Controller
         }
 
         return $bytes;
+    }
+    # -----------------------------------------------------------------
+    public function addLog( $param = null )
+    {
+        # act, g, req, id, s
+        # f, t, td
+        # $this->userRequest
+        $formulario = 'REQ_DINERO';
+        if( isset($param['f']) ){
+            $formulario = $param['f'];
+        }
+        $dataInsert = array(
+            "modulo"      => $param['m'] , 
+            "formulario"  => $formulario , 
+            "accion"      => $param['act'] , 
+            "glosa"       => $param['g'] , 
+            "json"        => json_encode( $param['req'] ) , 
+            "correlativo" => $param['id'] , 
+            "id_user"     => Auth::user()->id , 
+            "usuario"     => Auth::user()->name , 
+            "id_empresa"  => Auth::user()->id_empresa , 
+            "empresa"     => Auth::user()->empresa 
+        );
+        if (isset( $param['s'] )) {
+            $dataInsert['serie'] = $param['s'];
+        }
+        if (isset( $param['t'] )) {
+            $dataInsert['token'] = $param['t'];
+        }
+        if (isset( $param['td'] )) {
+            $dataInsert['tipo_doc'] = $param['td'];
+        }
+        auditoriaModel::create( $dataInsert );
     }
     # -----------------------------------------------------------------
 }

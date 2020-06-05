@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class archivosModel extends Model
 {
     use SoftDeletes;
-    protected $table = 'orq_archivo_adjunto';
+    protected $table = 'tbl_archivos';
     protected $primaryKey = 'id';
   
-    protected $fillable = [ 'uu_id','id_documento','url','ruta_fisica','tipo','peso','token','extension','tipo_documento','nombre_archivo','nombre_fisico','id_usuario','usuario' ];
+    protected $fillable = [ 'uu_id','id_documento','url','url_400','url_40','ruta_fisica','tipo','peso','token','extension','tipo_documento','nombre_archivo','nombre_fisico','id_usuario','usuario','formulario','guardado_en' ];
     
     protected $dates = ['deleted_at'];
  
@@ -42,6 +42,95 @@ class archivosModel extends Model
         }
     }
     # ------------------------------------------------------------
+    public function setTipoDocumentoAttribute( $value )
+    {
+        $extension = strtolower( $value );
+        $tipo = '';
+        switch ( $extension ) {
+            case 'pdf':
+                $tipo = 'Archivo PDF';
+            break;
+            case 'txt':
+                $tipo = 'Archivo TXT';
+            break;
+            case 'doc':
+                $tipo = 'Archivo Word';
+            break;
+            case 'docx':
+                $tipo = 'Archivo Word';
+            break;
+            case 'xls':
+                $tipo = 'Archivo Excel';
+            break;
+            case 'xlsx':
+                $tipo = 'Archivo Excel';
+            break;
+            case 'ppt':
+                $tipo = 'Presentación power point';
+            break;
+            case 'pptx':
+                $tipo = 'Presentación power point';
+            break;
+            case 'png':
+                $tipo = 'Imágen';
+            break;
+            case 'jpg':
+                $tipo = 'Imágen';
+            break;
+            case 'jpeg':
+                $tipo = 'Imágen';
+            break;
+            default:
+                $tipo = 'Desconocido - ' . $extension;
+            break;
+        }
+        $this->attributes['tipo_documento'] = $tipo;
+    }
+    /* ------------------------------------------------------------------- */
+    public function getTipoDocumentoAttribute( $value )
+    {
+        $extension = $value;
+        $tipo = '';
+        switch ( $extension ) {
+            case 'pdf':
+                $tipo = 'Archivo PDF';
+            break;
+            case 'txt':
+                $tipo = 'Archivo TXT';
+            break;
+            case 'doc':
+                $tipo = 'Archivo Word';
+            break;
+            case 'docx':
+                $tipo = 'Archivo Word';
+            break;
+            case 'xls':
+                $tipo = 'Archivo Excel';
+            break;
+            case 'xlsx':
+                $tipo = 'Archivo Excel';
+            break;
+            case 'ppt':
+                $tipo = 'Presentación power point';
+            break;
+            case 'pptx':
+                $tipo = 'Presentación power point';
+            break;
+            case 'png':
+                $tipo = 'Imágen';
+            break;
+            case 'jpg':
+                $tipo = 'Imágen';
+            break;
+            case 'jpeg':
+                $tipo = 'Imágen';
+            break;
+            default:
+                $tipo = '' . $extension;
+            break;
+        }
+        return $tipo;
+    }
     # ------------------------------------------------------------
     # ------------------------------------------------------------
     # ------------------------------------------------------------

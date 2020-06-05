@@ -36,6 +36,29 @@ class ajaxController extends Controller
         $this->middleware('auth');
     }
     # ----------------------------------------------------
+    public function update_avatar_user( Request $request )
+    {
+        //
+        $response = array();
+        $response['estado'] = 'OK';
+
+        $validator  = Validator::make($request->all(), [
+            'avatar' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            $response['estado'] ='ERROR';
+            $response['errores'] =$validator->errors();
+        }else{
+            # Actualizar foto del usuario
+            $userC = User::find( Auth::user()->id );
+            $userC->fill( $request->all() );
+            $userC->save();
+        }
+
+        return response()->json( $response , 200 );
+    }
     # ----------------------------------------------------
     # ----------------------------------------------------
     # ----------------------------------------------------

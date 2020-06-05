@@ -12,6 +12,9 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "^6.2",
         "laravel/helpers": "^1.2",
+        "vemcogroup/laravel-sparkpost-driver": "^2.0",
+        "guzzlehttp/guzzle": "^6.5",
+        "intervention/image": "^2.4",
         "laravel/tinker": "^2.0"
     },
     "require-dev": {

@@ -11,7 +11,7 @@
 |
 */
 
-define("URL_HOME", env('APP_URL') .'/' );
+define("URL_HOME", env('APP_URL') );
 
 $fecha      = date('Y-m-d');
 $fecha_hora  = date('Y-m-d h:i:s');
@@ -51,4 +51,22 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 # Perfil de usuario
 Route::get('perfil/usuario' , 'HomeController@perfil_usuario');
+
+
+# Adjuntar foto de perfil de usuario
+Route::post( 'adjuntar/foto/perfil/usuario' , 'adjuntoController@foto_perfil_usuario' );
+
+##################### AJAX 	#####################
+
+Route::post('update/avatar/usuario' , 'ajaxController@update_avatar_user');
+
+
+
+
+
+
+
+
+
+
 
